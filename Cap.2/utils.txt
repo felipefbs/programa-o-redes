@@ -1,0 +1,15 @@
+portas conhecidas(0,1023)
+portas registradas(1024,49151)
+portas restantes(49152,65535)
+
+No linux e Mac OS x é possivel ver as portas no arquivo /etc/services e IANA mantem uma lista no site www.iana.org/assignments/port-numbers
+
+A função getservbyname() da biblioteca socket retorna o numero da porta de um serviço
+
+getsockopt() e setsockopt() - Opções de socket
+    -SO_BROADCAST : Permite pacotes UDP de broadcast sejam enviados e recebidos
+    -SO_DONTROUTE : Só envia pacotes dentro da mesma sub-rede. Não permite roteamento
+    -SO_TYPE : no getsockopt() essa opção retorna se um socket é UDP(SOCK_DGRAM) ou TCP(SOCK_STREAM)
+
+Python usa o nome <broadcast> como alias para o endereço de broadcast
+

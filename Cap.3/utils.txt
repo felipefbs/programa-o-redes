@@ -1,0 +1,31 @@
+No UDP o bind() é feito exclusivamente na programa que executou a função. Ou seja bind() significa que o socket UDP recebera apenas daquele socket name.
+No TCP o bind significa o triple handshake. SYN -> SYN-ACK -> ACK. No TCP o bind() troca mensagens entre ambas as partes, no UDP é apenas uma forma de manter uma unica fonte de entrada do recv() no socket.
+
+O connect() no TCP é chamado pelo cliente para começar o triple handshake. No servidor tem o accept() que fáz o SYN-ACK. O accept() retorna ooutro socket.
+
+Socket passivo e socket ativo:
+    socket passivo é um nome de socket(endereço e numero de porta) em que o servidor está pronto para receber conexões. Não envia nem recebe dados.
+    socket ativo é vinculado a um parceiro de comunicação remoto específico com determiados endereço IP e porta. Pode ser usados em conversas e gravações. Um socket TCP conectado pode ser passado para outro programaque faça leituras em um arquivo normal e esse prorama nunca saerá que está se comunicando através da rede.
+
+    Sockets passivos são exclusivos, só há um por endereço e número de porta da interface que está escutando. Porém é possivel haver muitos sockets ativos todos compatilhando o mesmo nome, o que diferencia eles são os ip local, porta local, ip remoto e porta remota. Por exemplo um servidor web que tem um endereço IP, todas as conexões são feitas na porta 80. mas o endereço e porta remota são diferentes, no caso cada maquina conectada naquele servidor.
+
+No UDP os datagramas são atomicos. No TCP eles são divididos, enviados, recebidos e reordenados para que se tenha todas as confirmações e garantias de recebimentos que são tipicos do TCP. 
+E isso tem algumas consequencias. Tanto no ato de receber, recv(), quanto no ato de enviar, send(). No send() a pilha de rede do sistema operacional se depara com uma entre três situações: 
+    1. Os dados são aceitos imediatamente, pois a placa de rede está livre para transmissão ou tem espaço no buffer de saída
+    2. A placa de rede está ocupada e não tem espaço no buffer. E o programa trava até os dados serem aceitos para transmissão
+    3. Quando tem espaço no buffer, mas não o suficiente para tudo. Isso faz com que seja enviado só uma parte e então não é enviado mais nada
+
+    O terceiro caso do send() é um problema pois pode enviar apenas parte dos dados. Para evitar isso coloca o send num loop até que seja tudo enviado ou usa a função sendall().
+    
+    Para o recv() acontece algo parecido só que recebendo dados(obviamente) e não tem uma função semelhante ao sendall() para recv(). Então para assegurar que todos os dados sejam recebidos colocar o recv() num loop.
+
+Para evitar  um Errno 98 basta usar a opção de socket SO_REUSEADDR.
+
+Ter cuidado o DEADLOCK ##<- cool hacker name
+
+É possivel fechar uma conexão de socket TCP em apenas uma direção. A função shutdown() que recebe um dos três parametros:
+    SHUT_WR : quando o programa sabe que terminou de enviar dados e então fecha a conexão unidirecionalmente. Estou imaginando que isso significa que não estou mais enviando dados, mas caso ainda há dados a serem enviados devido aos protocolos de segurança de recebimento de dados do TCP então ele ainda mantem aberto.
+    SHUT_RD : que desativa o fluxo de dados de entrada, ou seja, não recebo mais dados.
+    Em ambas as opções acima se um dos lados que não foi desativado tentar comunicar o outro lado vai receber uma mensagem de erro.
+    SHUT_RDWR : fecha a comunicação dos dois lados. É semelhante a fechar o socket, close(), porém há uma diferença enorme entre usar o close() e usar o shutdown(SHUT_RDWR). Se vários programas em seu sistema tiverem permissão para compartilhar o mesmo socket o close() apenas fecha para aquela aplicação, mas mantem o socket aberto contanto que outro processo ainda o estivesse usando. O shutdown(SHUT_RDWR) desativa o socket para todos os que estavam usando aquele socket.
+

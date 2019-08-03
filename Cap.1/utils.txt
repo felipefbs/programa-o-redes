@@ -1,0 +1,8 @@
+Dificuldades - Aplicação do ambiente virtual de maneira correta
+Ambientes virtuais:
+    instalar via pip o virtualenv
+    virtualenv -p python VIRTUALENV_NAME
+    ter cuidado com relação as versões do python e ter certeza que está usando o Anaconda python
+Para leitura posterior:
+    RFC 791 - http://tools.ietf.org/html/rfc791
+    TCP/IP Illustrated Volume 1, de Kevin R. Fall e W Richard Stevens
